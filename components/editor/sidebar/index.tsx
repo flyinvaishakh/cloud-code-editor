@@ -1,4 +1,44 @@
-import { File, FilePlus, Folder, FolderPlus, Search } from "lucide-react";
+import { FilePlus, FolderPlus, Search } from "lucide-react";
+import SidebarFile from "./file";
+import SidebarFolder from "./folder";
+import { TFile, TFolder } from "./types";
+
+const data: (TFile | TFolder)[] = [
+  {
+    id: "index.tsx",
+    type: "file",
+    name: "index.tsx",
+  },
+  {
+    id: "components",
+    type: "folder",
+    name: "components",
+    children: [
+      {
+        id: "navbar.tsx",
+        type: "file",
+        name: "navbar.tsx",
+      },
+      {
+        id: "ui",
+        type: "folder",
+        name: "ui",
+        children: [
+          {
+            id: "Button.tsx",
+            type: "file",
+            name: "Button.tsx",
+          },
+          {
+            id: "Input.tsx",
+            type: "file",
+            name: "Input.tsx",
+          },
+        ],
+      },
+    ],
+  },
+];
 
 export default function Sidebar() {
   return (
@@ -17,15 +57,14 @@ export default function Sidebar() {
           </div>
         </div>
       </div>
-      <div className="w-full mt-2">
-        <div className="w-full flex items-center h-6 transition-colors hover:text-muted-foreground cursor-pointer">
-            <File className="h-4 w-4 mr-2"/>
-            index.html
-        </div>
-        <div className="w-full flex items-center h-6 transition-colors hover:text-muted-foreground cursor-pointer">
-            <Folder className="h-4 w-4 mr-2"/>
-            Styles
-        </div>
+      <div className="w-full mt-1 flex flex-col">
+        {data.map((child) =>
+          child.type === "file" ? (
+            <SidebarFile key={child.id} data={child} />
+          ) : (
+            <SidebarFolder key={child.id} data={child} />
+          )
+        )}
       </div>
     </div>
   );
