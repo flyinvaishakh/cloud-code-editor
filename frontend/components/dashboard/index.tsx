@@ -1,10 +1,8 @@
 "use client";
 
 import {
-  Clock,
   Code2,
   FolderDot,
-  Globe,
   HelpCircle,
   Plus,
   Settings,
@@ -13,12 +11,15 @@ import {
 import CustomButton from "../ui/customButton";
 import { Button } from "../ui/button";
 import { useState } from "react";
-import ProjectCard from "./projectCard";
-import { VirtualBox } from "@/lib/types";
+
+import type { VirtualBox} from "@/lib/schemas";
+
+import DashboardSharedWithMe from "./shared";
+import DashboardProjects from "./projects";
 
 type TScreen = "projects" | "shared" | "settings" | "search";
 
-export function Dashboard({ virtualboxes }: { virtualboxes: VirtualBox[] }) {
+export default function Dashboard({ virtualboxes }: { virtualboxes: VirtualBox[] }) {
   const [screen, setScreen] = useState<TScreen>("projects");
 
   const activeScreen = (s: TScreen) => {
@@ -48,7 +49,7 @@ export function Dashboard({ virtualboxes }: { virtualboxes: VirtualBox[] }) {
             className={activeScreen("shared")}
           >
             <Users className="w-4 h-4 mr-2" />
-            Shared Rooms
+            Shared With Me
           </Button>
           <Button
             variant={"ghost"}
@@ -76,23 +77,11 @@ export function Dashboard({ virtualboxes }: { virtualboxes: VirtualBox[] }) {
           </Button>
         </div>
       </div>
-      <div className="grow grid lg:grid-cols-4 xl:grid-cols-5 space-y-0.5 p-4">
-        {virtualboxes.map((virtualbox) => (
-          <ProjectCard key={virtualbox.id}>
-            <div className="font-medium flex items-center whitespace-nowrap w-full text-ellipsis overflow-hidden">
-             {virtualbox.name}
-            </div>
-            <div className="flex flex-col text-muted-foreground space-y-0.5 text-sm">
-              <div className="flex items-center">
-                <Globe className="w-3 h-3 mr-2" /> Public
-              </div>
-              <div className="flex items-center">
-                <Clock className="w-3 h-3 mr-2" /> 3d ago
-              </div>
-            </div>
-          </ProjectCard>
-        ))}
-      </div>
+      {screen === "projects" ? (
+        <DashboardProjects virtualboxes={virtualboxes} />
+      ) : screen === "shared" ? (
+        <DashboardSharedWithMe virtualboxes={virtualboxes} />
+      ) : screen === "settings" ? null : null}
     </div>
   );
 }

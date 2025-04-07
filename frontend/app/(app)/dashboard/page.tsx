@@ -1,41 +1,40 @@
-import { Dashboard } from "@/components/dashboard";
-import Navbar from "@/components/navbar";
-import { VirtualBox } from "@/lib/types";
+import Dashboard  from "@/components/dashboard";
+import Navbar from "@/components/dashboard/navbar";
+import { UserSchema } from "@/lib/schemas";
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import type { User } from "@/lib/schemas";
 
 export default async function DashboardPage() {
   const user = await currentUser();
-  console.log(user);
 
   if (!user) {
     redirect("/");
   }
 
-  let data: VirtualBox[] = [];
+  const res = await fetch(
+    `https://database.mycloudcodeditor.workers.dev/api/user?id=${user.id}`,
+    { cache: "no-store" }
+  );
 
-  try {
-    const res = await fetch(
-      `https://database.mycloudcodeditor.workers.dev/api/user/virtualbox?id=123`
-    );
-
-    console.log(res);
-
-    if (!res.ok) {
-      throw new Error(`Failed to fetch virtual boxes: ${res.statusText}`);
-    }
-
-    const jsonData = await res.json();
-    data = jsonData.virtualBox as VirtualBox[];
-  } catch (error) {
-    console.error("Error fetching virtual boxes: ", error);
+  if (!res.ok) {
+    throw new Error(`Failed to fetch virtual boxes: ${res.statusText}`);
   }
 
-  
+  let userData: User;
+
+  try{
+    const rawData = await res.json();
+    userData = UserSchema.parse(rawData);
+  } catch(error){
+    console.log("Failed to validate user data:",error);
+    throw new Error("Invalid user data structure");
+  }
+
   return (
     <div>
-      <Navbar />
-      <Dashboard virtualboxes={data} />
+      <Navbar userData={userData} />
+      <Dashboard virtualboxes={userData?.virtualBox} />
     </div>
   );
 }
